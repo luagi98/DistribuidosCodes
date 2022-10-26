@@ -47,11 +47,12 @@ class SortByValue implements Comparator<Pair> {
 
 class Task implements Runnable {
     int threadNumber;
-    String fileName = "BIBLIA_COMPLETA.txt";
     long lines;
+    String fileName = "BIBLIA_COMPLETA.txt";
 
-    public Task(int threadNumber) {
+    public Task(int threadNumber, long lines) {
         this.threadNumber = threadNumber;
+        this.lines = lines;
     }
 
     // Prints task name and sleeps for 1s
@@ -60,28 +61,34 @@ class Task implements Runnable {
         Map<Character, Integer> hm = new HashMap<>();
         File f = new File(fileName);
         try {
-            lines = Files.lines(Paths.get(fileName)).count();
-            long start = (lines / 5) * (threadNumber - 1), end = (lines / 5) * (threadNumber);
+            long start = (long) Math.floor((lines / 5) * (threadNumber - 1)),
+                    end = (long) Math.floor((lines / 5) * (threadNumber));
+
+            // System.out.println("start: " + start + " end: " + end + " in thread " +
+            // threadNumber);
             BufferedReader br = new BufferedReader(new FileReader(f));
             String line;
-
+            long n = 0;
             while ((line = br.readLine()) != null) {
-                for (int i = 0; i < line.length(); i++) {
-                    int value;
-                    char key = line.charAt(i);
-                    if (hm.containsKey(key)) {
-                        value = hm.get(key);
-                    } else {
-                        value = 0;
+                if (n < start) {
+                    n++;
+                } else if (n < end && n >= start) {
+                    for (int i = 0; i < line.length(); i++) {
+                        int value;
+                        char key = line.charAt(i);
+                        if (hm.containsKey(key)) {
+                            value = hm.get(key);
+                        } else {
+                            value = 0;
+                        }
+                        hm.put(key, value + 1);
                     }
-                    hm.put(key, value + 1);
-                }
+                    n++;
+                } else if (n >= end)
+                    break;
             }
-
             br.close();
-
-            System.out.println("Numero de caracteres distintos: " + hm.size() + "para Thread " + threadNumber);
-
+            System.out.println("Caracteres distintos: " + hm.size() + " para Thread " + threadNumber);
             ArrayList<Pair> arr = new ArrayList<>();
             for (Map.Entry<Character, Integer> it : hm.entrySet()) {
                 arr.add(new Pair(it.getKey(), it.getValue()));
@@ -90,7 +97,7 @@ class Task implements Runnable {
             Collections.sort(arr, new SortByValue());
 
             for (Pair p : arr) {
-                System.out.println(p.toString());
+                System.out.println("Thread: " + threadNumber + ' ' + p.toString());
             }
 
         } catch (Exception e) {
@@ -105,20 +112,32 @@ public class ConcurrentMap {
     static final int MAX_T = 3;
 
     public static void main(String[] args) {
+        BufferedReader reader;
+        long lines = 0;
+        try {
+            reader = new BufferedReader(new FileReader("BIBLIA_COMPLETA.txt"));
+            while (reader.readLine() != null)
+                lines++;
+            reader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+        }
         // creates five tasks
-        // Runnable r1 = new Task("task 1");
-        // Runnable r2 = new Task("task 2");
-        // Runnable r3 = new Task("task 3");
-        // Runnable r4 = new Task("task 4");
-        // Runnable r5 = new Task("task 5");
+        Runnable r1 = new Task(1, lines);
+        Runnable r2 = new Task(2, lines);
+        Runnable r3 = new Task(3, lines);
+        Runnable r4 = new Task(4, lines);
+        Runnable r5 = new Task(5, lines);
+
         ExecutorService pool = Executors.newFixedThreadPool(MAX_T);
 
         // passes the Task objects to the pool to execute (Step 3)
-        // pool.execute(r1);
-        // pool.execute(r2);
-        // pool.execute(r3);
-        // pool.execute(r4);
-        // pool.execute(r5);
+        pool.execute(r1);
+        pool.execute(r2);
+        pool.execute(r3);
+        pool.execute(r4);
+        pool.execute(r5);
         // t1.start();
         // t2.start();
         // t3.start();
