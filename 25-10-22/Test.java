@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 // Task class to be executed (Step 1)
 class Task implements Runnable {
 	private String name;
-
+	
 	public Task(String s) {
 		name = s;
 	}
@@ -23,7 +23,7 @@ class Task implements Runnable {
 					Date d = new Date();
 					SimpleDateFormat ft = new SimpleDateFormat("hh:mm:ss");
 					System.out.println("Initialization Time for"
-							+ " task name - " + name + " = " + ft.format(d));
+					+ " task name - " + name + " = " + ft.format(d));
 					// prints the initialization time for every task
 				} else {
 					Date d = new Date();
