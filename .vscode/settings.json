@@ -1,5 +1,11 @@
 {
-    "java.project.sourcePaths": [
-        "."
-    ]
+  "java.project.sourcePaths": [
+    "Proyecto2\\Parte2",
+    ".",
+    "06-09-22",
+    "07-09-22",
+    "18-10-22",
+    "21-10-22",
+    "Proyecto2\\Parte1"
+  ]
 }
